@@ -103,26 +103,26 @@ void ProcessImageDir(string baseName, XElement baseElement)
 
 void ProcessCanvasElements(string baseName, XElement parentElement)
 {
-    var canvasItems = new Dictionary<string, XElement>();
+    Dictionary<string, XElement> canvasItems = new ();
     int eHeight = 0, wOriginY = 0, eOriginY = 0;
-    string eBaseData = string.Empty;
+    string? eBaseData = null;
 
     // Process only canvas elements in the current xml element
     foreach (var element in parentElement.Elements("canvas"))
     {
         string name = element.Attribute("name").Value;
-        Console.WriteLine($"Processing: {baseName}.{name}");
-
         if (name != "e" && name != "w")
         {
             continue;
         }
 
+        Console.WriteLine($"Processing: {baseName}.{name}");
+
         canvasItems[name] = element;
 
         int height = int.Parse(element.Attribute("height").Value);
-        string baseData = element.Attribute("basedata").Value;
-        var vector = element.Element("vector");
+        string baseData = element.Attribute("basedata")?.Value;
+        XElement? vector = element.Element("vector");
         int originY = int.Parse(vector.Attribute("y").Value);
 
         switch (name)
@@ -145,15 +145,22 @@ void ProcessCanvasElements(string baseName, XElement parentElement)
 
         if (newPixels >= 0 && newHeight != eHeight)
         {
-            // Load image from xml, resize, save new image as base64 string  
-            string newBaseData = ImageHelper.AddTransparentSpace(
-                ImageHelper.LoadImageFromBase64String(eBaseData), newHeight)
-                .SaveImageAsBase64String(ImageFormat.Png);
-
             canvasItems["e"].Attribute("height").SetValue(newHeight);
-            canvasItems["e"].Attribute("basedata").SetValue(newBaseData);
 
-            Console.WriteLine($"INFO: [{baseName}] => Applied edit to image and properties.");
+            if (!string.IsNullOrWhiteSpace(eBaseData))
+            {
+                // Load image from xml, resize, save new image as base64 string  
+                string newBaseData = ImageHelper.AddTransparentSpace(
+                        ImageHelper.LoadImageFromBase64String(eBaseData), newHeight)
+                    .SaveImageAsBase64String(ImageFormat.Png);
+
+                canvasItems["e"].Attribute("basedata").SetValue(newBaseData);
+
+                Console.WriteLine($"INFO: [{baseName}] => Applied edit to image and canvas.");
+                return;
+            }
+
+            Console.WriteLine($"INFO: [{baseName}] => Applied edit to canvas.");
         }
     }
 }
