@@ -46,14 +46,13 @@ internal static class ImageHelper
         // Create a new bitmap with the desired dimensions
         Bitmap newImage = new Bitmap(originalImage.Width, newHeight);
 
-        using (Graphics graphics = Graphics.FromImage(newImage))
-        {
-            // Set the background to be transparent
-            graphics.Clear(Color.Transparent);
+        using Graphics graphics = Graphics.FromImage(newImage);
+        
+        // Set the background to be transparent
+        graphics.Clear(Color.Transparent);
 
-            // Draw the original image onto the new bitmap, centered
-            graphics.DrawImage(originalImage, 0, topMargin, originalImage.Width, originalImage.Height);
-        }
+        // Draw the original image onto the new bitmap, from the bottom up
+        graphics.DrawImage(originalImage, 0, topMargin, originalImage.Width, originalImage.Height);
 
         return newImage;
     }
