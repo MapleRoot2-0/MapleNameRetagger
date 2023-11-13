@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This is free and unencumbered software released into the public domain.
  *
  * Anyone is free to copy, modify, publish, use, compile, sell, or
@@ -10,6 +10,7 @@
  */
 
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 
 namespace MapleNameRetagger;
@@ -19,7 +20,7 @@ internal static class ImageHelper
     public static Image LoadImageFromBase64String(string base64String)
     {
         byte[] imageBytes = Convert.FromBase64String(base64String);
-        using MemoryStream ms = new MemoryStream(imageBytes, 0, imageBytes.Length);
+        using MemoryStream ms = new MemoryStream(imageBytes);
         return Image.FromStream(ms, true);
     }
 
@@ -47,7 +48,11 @@ internal static class ImageHelper
         Bitmap newImage = new Bitmap(originalImage.Width, newHeight);
 
         using Graphics graphics = Graphics.FromImage(newImage);
-        
+
+        graphics.SmoothingMode = SmoothingMode.HighQuality;
+        graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+        graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
         // Set the background to be transparent
         graphics.Clear(Color.Transparent);
 
