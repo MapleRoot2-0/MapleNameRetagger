@@ -9,6 +9,7 @@
  * For more information, please refer to <http://unlicense.org/>
  */
 
+using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Xml.Linq;
 using MapleNameRetagger;
@@ -116,7 +117,7 @@ void ProcessCanvasElements(string baseName, XElement parentElement)
             continue;
         }
 
-        Console.WriteLine($"Processing: {baseName}.{name}");
+        Debug.WriteLine($"Processing: {baseName}.{name}");
 
         canvasItems[name] = element;
 
