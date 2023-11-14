@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This is free and unencumbered software released into the public domain.
  *
  * Anyone is free to copy, modify, publish, use, compile, sell, or
@@ -9,6 +9,8 @@
  * For more information, please refer to <http://unlicense.org/>
  */
 
+using System.Diagnostics;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.Xml.Linq;
 using MapleNameRetagger;
@@ -95,7 +97,7 @@ void ProcessImageDir(string baseName, XElement baseElement)
         if (xElement.Name == "imgdir")
         {
             string newBaseName = $"{baseName}.{xElement.Attribute("name").Value}";
-            Console.WriteLine($"New imgdir: {newBaseName}");
+            Debug.WriteLine($"New imgdir: {newBaseName}");
             ProcessImageDir(newBaseName, xElement);
         }
     }
@@ -116,7 +118,7 @@ void ProcessCanvasElements(string baseName, XElement parentElement)
             continue;
         }
 
-        Console.WriteLine($"Processing: {baseName}.{name}");
+        Debug.WriteLine($"Processing: {baseName}.{name}");
 
         canvasItems[name] = element;
 
@@ -143,15 +145,25 @@ void ProcessCanvasElements(string baseName, XElement parentElement)
         int newPixels = wOriginY - eOriginY;
         int newHeight = eHeight + newPixels;
 
-        if (newPixels >= 0 && newHeight != eHeight)
+        if (newPixels > 0)
         {
+            using Image currentImage = ImageHelper.LoadImageFromBase64String(eBaseData);
+
+            int currentImageHeight = currentImage.Height;
+
+            if (newHeight < currentImageHeight)
+            {
+                Console.WriteLine($"WARN: [{baseName}] e.height property is less than real image height, skipping!");
+                newHeight = currentImageHeight + newPixels;
+            }
+
             canvasItems["e"].Attribute("height").SetValue(newHeight);
 
             if (!string.IsNullOrWhiteSpace(eBaseData))
             {
+
                 // Load image from xml, resize, save new image as base64 string  
-                string newBaseData = ImageHelper.AddTransparentSpace(
-                        ImageHelper.LoadImageFromBase64String(eBaseData), newHeight)
+                string newBaseData = ImageHelper.AddTransparentSpace(currentImage, newHeight)
                     .SaveImageAsBase64String(ImageFormat.Png);
 
                 canvasItems["e"].Attribute("basedata").SetValue(newBaseData);
