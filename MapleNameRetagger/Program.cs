@@ -24,8 +24,7 @@ try
     // If the user didn't supply a path and fallback file is not found...
     if (!suppliedFileExists && !File.Exists(targetFile))
     {
-        Console.WriteLine($"ERROR: No target file supplied and default file (.\\{targetFile}) not found. Process Terminates.");
-        Console.WriteLine($"ERROR: 未指定目标文件且默认文件 (.\\{targetFile}) 未找到。运行终止。");
+        Console.WriteLine(Messages.ErrorTargetOrSuppliedFileNotFound, targetFile);
         Environment.Exit(1);
     }
 
@@ -52,8 +51,7 @@ try
 
     if (document == null || document.Root.IsEmpty)
     {
-        Console.WriteLine("ERROR: File load failure or empty document.");
-		Console.WriteLine("ERROR: 文件为空或未能成功加载。");
+        Console.WriteLine(Messages.ErrorFileLoadErrorOrFileEmpty);
         return;
     }
 
@@ -61,23 +59,21 @@ try
     {
         ProcessImageDir(document.Root.Attribute("name").Value, document.Root);
 
-        Console.WriteLine("INFO: Finished processing, attempting to save!");
-		Console.WriteLine("INFO: 处理完成，正在尝试保存！");
+        Console.WriteLine(Messages.InfoFinishedProcessingAttemptingToSave);
         // Ensure we are at the start of the stream
         stream.Seek(0, SeekOrigin.Begin);
         document.Save(stream);
 
-        Console.WriteLine("INFO: Saved successfully!");
-		Console.WriteLine("INFO: 保存成功！");
+        Console.WriteLine(Messages.InfoSavedSuccessfully);
 	}
     catch (Exception e)
     {
-        Console.WriteLine($"ERROR: {e.Message}\r\n{e.StackTrace}");
+        Console.WriteLine(Messages.ErrorException, e.Message, e.StackTrace);
     }
 }
 catch (Exception ex)
 {
-    Console.WriteLine($"ERROR: {ex.Message}\r\n{ex.StackTrace}");
+    Console.WriteLine(Messages.ErrorException, ex.Message, ex.StackTrace);
 }
 
 return;
@@ -142,11 +138,8 @@ void ProcessCanvasElements(string baseName, XElement parentElement)
         }
     }
     
-    using Image currentImage = ImageHelper.LoadImageFromBase64String(eBaseData);
-    
 	int newPixels = wOriginY - eOriginY;
     int newHeight = eHeight + newPixels;
-    int currentImageHeight = currentImage.Height;
     
     if (!(canvasItems.ContainsKey("e") && canvasItems.ContainsKey("w"))) 
 		return;
@@ -154,10 +147,13 @@ void ProcessCanvasElements(string baseName, XElement parentElement)
     if (newPixels <= 0) 
 		return;
 
+    using Image currentImage = ImageHelper.LoadImageFromBase64String(eBaseData);
+
+    int currentImageHeight = currentImage.Height;
+
     if (newHeight < currentImageHeight)
     {
-        Console.WriteLine($"WARN: [{baseName}] e.height property is less than real image height, skipping!");
-        Console.WriteLine($"WARN: [{baseName}] e.height 属性小于实际图像高度，已跳过！");
+        Console.WriteLine(Messages.WarnHeightLessThanReal, baseName);
         newHeight = currentImageHeight + newPixels;
     }
 
@@ -171,11 +167,9 @@ void ProcessCanvasElements(string baseName, XElement parentElement)
 
         canvasItems["e"].Attribute("basedata").SetValue(newBaseData);
 
-        Console.WriteLine($"INFO: [{baseName}] => Applied edit to image and canvas.");
-        Console.WriteLine($"INFO: [{baseName}] => 已应用对图像与画布的更改。");
+        Console.WriteLine(Messages.InfoAppliedImageAndCanvas, baseName);
         return;
     }
 
-    Console.WriteLine($"INFO: [{baseName}] => Applied edit to canvas.");
-    Console.WriteLine($"INFO: [{baseName}] => 已应用对画布的更改。");
+    Console.WriteLine(Messages.InfoAppliedCanvas, baseName);
 }
