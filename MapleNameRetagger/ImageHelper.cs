@@ -39,7 +39,7 @@ internal static class ImageHelper
             throw new ArgumentNullException(nameof(originalImage));
 
         if (newHeight <= originalImage.Height)
-            throw new ArgumentException("New height must be greater than the original image height.");
+            throw new ArgumentException("New height must be greater than the original image height. \n新高度必须大于原始图像高度。");
 
         int additionalSpace = newHeight - originalImage.Height;
         int topMargin = additionalSpace;
