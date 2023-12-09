@@ -165,7 +165,6 @@ void ProcessCanvasElements(string baseName, XElement parentElement)
 
     if (!string.IsNullOrWhiteSpace(eBaseData))
     {
-
         // Load image from xml, resize, save new image as base64 string  
         string newBaseData = ImageHelper.AddTransparentSpace(currentImage, newHeight)
             .SaveImageAsBase64String(ImageFormat.Png);
@@ -177,5 +176,6 @@ void ProcessCanvasElements(string baseName, XElement parentElement)
         return;
     }
 
+    Console.WriteLine($"INFO: [{baseName}] => Applied edit to canvas.");
     Console.WriteLine($"INFO: [{baseName}] => 已应用对画布的更改。");
 }
